@@ -23,16 +23,20 @@ person when the evidence earns it.
 
 ## Quick Start
 
-1. Install TinyFish CLI (already done if you ran connect --all):
-   npx -y @tiny-fish/cli@latest --version
+1. Copy `.env.example` to `.env` (placeholders only). Install deps:
+   python -m venv .venv
+   .venv\Scripts\pip install -r requirements.txt
 
-2. Set vault secrets (Section 6 of TINYFISH_INTEGRATION_PROMPT.md):
-   tinyfish vault set TINYFISH_VAULT_HRMS_USER "..."
+2. TinyFish CLI 0.49 (local `tinyfish` if installed, else npx @tiny-fish/cli):
+   tinyfish search query "CAPF welfare"
+   tinyfish fetch content get https://www.crpf.gov.in/welfare.htm
+   tinyfish agent run "<goal>" --url <url> --sync
 
-3. Run connectivity check:
-   tinyfish fetch https://www.crpf.gov.in/welfare.htm
+3. Store live credentials in TinyFish Vault / a connected password manager.
+   Never commit `.env` or put passwords in agent goal strings.
 
-4. Follow the 7-step sequence in TINYFISH_INTEGRATION_PROMPT.md Section 7.
+4. Dry-run welfare fetch:
+   .venv\Scripts\python scripts/welfare_fetch.py --dry-run
 
 ## Project Structure
 

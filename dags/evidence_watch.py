@@ -1,29 +1,40 @@
 ﻿"""
 Airflow DAG: evidence_watch
 Schedule: Weekly on Monday at 06:00 IST (00:30 UTC Monday)
-Runs the TinyFish evidence search+fetch monitor via scripts/evidence_watch.py.
+Runs scripts/evidence_watch.py (TinyFish search query + fetch content get).
 """
 from __future__ import annotations
+
 import os
+import sys
 from datetime import datetime, timedelta
+from pathlib import Path
+
+from dotenv import load_dotenv
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "scripts")
+ROOT = Path(__file__).resolve().parent.parent
+load_dotenv(ROOT / ".env")
+sys.path.insert(0, str(ROOT / "scripts"))
+
+SCRIPTS_DIR = ROOT / "scripts"
 SAMVEDNA_API_BASE = os.getenv("SAMVEDNA_API_BASE", "http://127.0.0.1:8090")
 SAMVEDNA_SERVICE_TOKEN = os.getenv("SAMVEDNA_SERVICE_TOKEN", "")
 
 
 def run_evidence_watch(**context):
-    import subprocess, logging
+    import logging
+    import subprocess
+
     log = logging.getLogger(__name__)
-    script = os.path.join(SCRIPTS_DIR, "evidence_watch.py")
+    script = SCRIPTS_DIR / "evidence_watch.py"
     result = subprocess.run(
-        ["python", script],
+        [sys.executable, str(script)],
         capture_output=True, text=True, timeout=600,
         env={**os.environ,
              "SAMVEDNA_API_BASE": SAMVEDNA_API_BASE,
-             "SAMVEDNA_SERVICE_TOKEN": SAMVEDNA_SERVICE_TOKEN}
+             "SAMVEDNA_SERVICE_TOKEN": SAMVEDNA_SERVICE_TOKEN},
     )
     log.info(result.stdout)
     if result.returncode != 0:

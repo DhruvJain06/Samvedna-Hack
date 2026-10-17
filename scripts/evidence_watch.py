@@ -13,14 +13,32 @@ import json
 import logging
 import os
 import re
-import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+
+from tinyfish_cli import (  # noqa: E402
+    extract_search_items,
+    extract_text,
+    extract_urls,
+    fetch_content_cmd,
+    item_is_on_or_after,
+    load_sidecar_env,
+    parse_cli_json,
+    resolve_since,
+    run_tinyfish,
+    search_query_cmd,
+    with_after_clause,
+)
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
-ROOT = Path(__file__).resolve().parent.parent
+load_sidecar_env()
+
 CONFIG_DIR = ROOT / "config"
 BASELINE_FILE = CONFIG_DIR / "evidence_baseline.json"
 CACHE_DIR = ROOT / "data" / "evidence_cache"
@@ -35,7 +53,6 @@ SEARCH_QUERIES = [
     "CAPF personnel suicide prevention circular",
 ]
 
-# Patterns that extract numeric values near known keywords
 EXTRACTION_PATTERNS = {
     "capf_suicide_per_year": [
         r"(\d+)\s*(?:CAPF|police)\s*(?:personnel)?\s*(?:died by suicide|suicide deaths?)\s*(?:per year|annually|each year)",
@@ -54,39 +71,37 @@ EXTRACTION_PATTERNS = {
     ],
 }
 
-DRIFT_THRESHOLD = 0.05  # 5 %
+DRIFT_THRESHOLD = 0.05
 
 
-def tinyfish_search(query: str) -> list[str]:
-    """Run a TinyFish search and return a list of URLs."""
-    result = subprocess.run(
-        ["npx", "-y", "@tiny-fish/cli@latest", "search", query, "--fetch"],
-        capture_output=True, text=True, timeout=120,
-    )
-    urls = []
-    for line in result.stdout.splitlines():
-        try:
-            event = json.loads(line)
-            if event.get("type") == "COMPLETE":
-                for item in event.get("result", {}).get("results", []):
-                    urls.append(item.get("url", ""))
-        except json.JSONDecodeError:
-            if line.startswith("http"):
-                urls.append(line.strip())
-    return [u for u in urls if u]
+def tinyfish_search(query: str) -> list[dict]:
+    """Run TinyFish search query and return result items (url + optional dates)."""
+    cmd = search_query_cmd(query)
+    result = run_tinyfish(cmd, timeout=120)
+    if result.returncode != 0:
+        log.warning("Search failed: %s", (result.stderr or "")[:200])
+        return []
+    payload = parse_cli_json(result.stdout)
+    if payload is None:
+        log.warning("Search returned non-JSON output")
+        return []
+    items = extract_search_items(payload)
+    if items:
+        return items
+    return [{"url": u} for u in extract_urls(payload)]
 
 
 def tinyfish_fetch(url: str) -> str:
-    """Fetch a URL via TinyFish and return text content."""
-    result = subprocess.run(
-        ["npx", "-y", "@tiny-fish/cli@latest", "fetch", url],
-        capture_output=True, text=True, timeout=60,
-    )
-    return result.stdout if result.returncode == 0 else ""
+    cmd = fetch_content_cmd([url])
+    result = run_tinyfish(cmd, timeout=90)
+    if result.returncode != 0:
+        return ""
+    payload = parse_cli_json(result.stdout)
+    text = extract_text(payload) if payload is not None else ""
+    return text or (result.stdout or "")
 
 
 def extract_numbers(text: str) -> dict[str, float]:
-    """Extract numeric values for each baseline field."""
     found: dict[str, float] = {}
     for field, patterns in EXTRACTION_PATTERNS.items():
         for pattern in patterns:
@@ -102,13 +117,10 @@ def extract_numbers(text: str) -> dict[str, float]:
 
 
 def check_drift(baseline: dict, extracted: dict, source_url: str) -> list[dict]:
-    """Return list of drift events where |new - old| / old > threshold."""
     drifts = []
     for field, new_val in extracted.items():
         old_val = baseline.get(field)
-        if old_val is None:
-            continue
-        if old_val == 0:
+        if old_val is None or old_val == 0:
             continue
         if abs(new_val - old_val) / abs(old_val) > DRIFT_THRESHOLD:
             drifts.append({
@@ -153,25 +165,39 @@ def cache_text(url: str, text: str) -> None:
     safe_name = re.sub(r"[^a-zA-Z0-9]", "_", url)[:80]
     path = CACHE_DIR / f"{safe_name}.txt"
     with open(path, "w", encoding="utf-8") as f:
-        f.write(text[:1_000_000])  # max 1 MB
+        f.write(text[:1_000_000])
 
 
 def main(since: str | None = None) -> None:
     baseline = load_baseline()
+    cutoff = resolve_since(since, baseline.get("last_checked"))
+    if cutoff:
+        log.info("Only considering documents on or after %s", cutoff.date().isoformat())
+    else:
+        log.info("No --since / last_checked cutoff; searching all recency")
+
     run_id = datetime.now(timezone.utc).strftime("evidence-watch-%Y%m%dT%H%M%S")
 
-    all_urls: list[str] = []
+    all_items: list[dict] = []
     for query in SEARCH_QUERIES:
-        log.info("Searching: %s", query)
-        urls = tinyfish_search(query)
-        log.info("  Found %d URLs", len(urls))
-        all_urls.extend(urls[:5])  # top 5 per query
+        q = with_after_clause(query, cutoff)
+        log.info("Searching: %s", q)
+        items = tinyfish_search(q)
+        kept = [i for i in items if item_is_on_or_after(i, cutoff)]
+        log.info("  Found %d URLs (%d after date filter)", len(items), len(kept))
+        all_items.extend(kept[:5])
 
-    all_urls = list(dict.fromkeys(all_urls))  # deduplicate, preserve order
-    log.info("Total unique URLs to fetch: %d", len(all_urls))
+    urls: list[str] = []
+    seen: set[str] = set()
+    for item in all_items:
+        url = item.get("url") or item.get("link") or ""
+        if url and url not in seen:
+            seen.add(url)
+            urls.append(url)
+    log.info("Total unique URLs to fetch: %d", len(urls))
 
     any_drift = False
-    for url in all_urls:
+    for url in urls:
         log.info("Fetching %s", url)
         text = tinyfish_fetch(url)
         if not text:

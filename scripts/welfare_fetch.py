@@ -12,19 +12,30 @@ import argparse
 import json
 import logging
 import os
-import subprocess
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+
+from tinyfish_cli import (  # noqa: E402
+    extract_text,
+    fetch_content_cmd,
+    load_sidecar_env,
+    parse_cli_json,
+    run_tinyfish,
+)
+
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
-ROOT = Path(__file__).resolve().parent.parent
+load_sidecar_env()
+
 DATA_DIR = ROOT / "data"
 DIRECTORY_FILE = DATA_DIR / "welfare_directory.json"
 CHANGELOG_FILE = DATA_DIR / "welfare_directory_changelog.jsonl"
-AGENT_CONFIG = ROOT / "agents" / "welfare_fetch.yaml"
 
 SAMVEDNA_API_BASE = os.getenv("SAMVEDNA_API_BASE", "http://127.0.0.1:8090")
 SAMVEDNA_SERVICE_TOKEN = os.getenv("SAMVEDNA_SERVICE_TOKEN", "")
@@ -37,22 +48,23 @@ PUBLIC_URLS = [
 
 
 def fetch_url(url: str) -> str:
-    """Use TinyFish CLI to fetch a public URL and return page text."""
-    result = subprocess.run(
-        ["npx", "-y", "@tiny-fish/cli@latest", "fetch", url],
-        capture_output=True, text=True, timeout=60,
-    )
+    """Fetch one public URL via TinyFish CLI 0.49 and return page text."""
+    cmd = fetch_content_cmd([url])
+    result = run_tinyfish(cmd, timeout=90)
     if result.returncode != 0:
-        log.warning("Failed to fetch %s: %s", url, result.stderr[:200])
+        err = (result.stderr or "")[:200]
+        log.warning("Failed to fetch %s: %s", url, err)
         return ""
-    return result.stdout
+    payload = parse_cli_json(result.stdout)
+    text = extract_text(payload) if payload is not None else ""
+    if not text:
+        text = (result.stdout or "").strip()
+    return text
 
 
 def parse_welfare_items(html: str, source_url: str) -> list[dict]:
     """Naive extraction — replace with proper parser for production."""
-    import re
     items = []
-    # Look for phone patterns near welfare keywords
     phone_re = re.compile(r"\b(?:1800[\s-]?\d{6,}|\d{10})\b")
     for match in phone_re.finditer(html):
         start = max(0, match.start() - 120)
@@ -64,7 +76,7 @@ def parse_welfare_items(html: str, source_url: str) -> list[dict]:
             "effective_date": None,
             "url": source_url,
         })
-    return items[:20]  # cap per source
+    return items[:20]
 
 
 def load_existing() -> list[dict]:
@@ -79,7 +91,6 @@ def deduplicate_key(item: dict) -> tuple:
 
 
 def diff(existing: list[dict], new_items: list[dict]) -> tuple[list, list]:
-    """Return (added, unchanged)."""
     existing_keys = {deduplicate_key(i) for i in existing}
     added = [i for i in new_items if deduplicate_key(i) not in existing_keys]
     return added, existing
@@ -110,7 +121,7 @@ def main(dry_run: bool = False) -> None:
             log.info("  Extracted %d items", len(items))
             all_new_items.extend(items)
         else:
-            log.warning("  Skipped (unreachable)")
+            log.warning("  Skipped (unreachable) — keeping last-known data for this source")
 
     existing = load_existing()
     added, _ = diff(existing, all_new_items)

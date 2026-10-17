@@ -1,9 +1,14 @@
 ﻿# TinyFish Agent: Legacy HRMS Connector
 # Use-case 2-A from TINYFISH_INTEGRATION_PROMPT.md
 #
+# HUMAN SPEC / GOAL SOURCE — TinyFish CLI 0.49 does not execute this YAML DSL.
+# Runtime (dags/hrms_connector.py, scripts/tinyfish_goals.py):
+#   tinyfish agent run "<goal>" --url <TARGET_PORTAL_URL> --sync --use-vault
+#   --output-schema-file config/hrms_records.schema.json
+#
 # Runs nightly (01:00 IST via dags/hrms_connector.py).
-# Credentials are read from TinyFish Vault — never hard-coded.
-# OUTPUT: JSON array matching the schema below.
+# Credentials are filled by TinyFish Vault at runtime — never hard-coded in the goal.
+# OUTPUT: JSON array matching config/hrms_records.schema.json.
 # DATA BOUNDARY: must run inside the force network or on de-identified exports.
 
 name: samvedna-hrms-connector

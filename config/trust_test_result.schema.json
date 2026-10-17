@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "required": ["outcome"],
+  "properties": {
+    "outcome": {
+      "type": "string",
+      "enum": ["PASS", "FAIL", "INCONCLUSIVE"]
+    },
+    "role": { "type": "string" },
+    "action": { "type": "string" },
+    "run_id": { "type": "string" }
+  }
+}

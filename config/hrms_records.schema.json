@@ -1,0 +1,33 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "pid_hash",
+      "duty_days_consecutive",
+      "leave_balance_days",
+      "unit_code"
+    ],
+    "properties": {
+      "pid_hash": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      },
+      "duty_days_consecutive": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "leave_balance_days": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "last_posting_change_date": {
+        "type": ["string", "null"]
+      },
+      "unit_code": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

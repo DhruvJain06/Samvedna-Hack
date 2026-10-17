@@ -1,5 +1,12 @@
 ﻿# TinyFish Search+Fetch Monitor: Policy & Evidence Watch
 # Use-case 2-C from TINYFISH_INTEGRATION_PROMPT.md
+#
+# HUMAN SPEC — not a TinyFish monitor create payload.
+# Runtime: scripts/evidence_watch.py uses
+#   tinyfish search query "<query>"
+#   tinyfish fetch content get <url>
+# Date window is put in the query (after:YYYY-MM-DD) and --since.
+#
 # Runs weekly (Monday 06:00 IST) via dags/evidence_watch.py
 # Touches ONLY public sources. No vaulted credentials needed.
 

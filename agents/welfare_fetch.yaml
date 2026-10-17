@@ -1,5 +1,11 @@
 ﻿# TinyFish Fetch Monitor: Live Welfare Directory
 # Use-case 2-B from TINYFISH_INTEGRATION_PROMPT.md
+#
+# HUMAN SPEC — not a TinyFish monitor create payload.
+# Runtime: scripts/welfare_fetch.py uses
+#   tinyfish fetch content get <url>
+# Airflow DAG welfare_directory.py shells that script.
+#
 # Runs daily at 02:00 IST via dags/welfare_directory.py
 # Touches ONLY public URLs. No vaulted credentials needed.
 
