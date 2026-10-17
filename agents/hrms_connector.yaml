@@ -1,0 +1,141 @@
+﻿# TinyFish Agent: Legacy HRMS Connector
+# Use-case 2-A from TINYFISH_INTEGRATION_PROMPT.md
+#
+# Runs nightly (01:00 IST via dags/hrms_connector.py).
+# Credentials are read from TinyFish Vault — never hard-coded.
+# OUTPUT: JSON array matching the schema below.
+# DATA BOUNDARY: must run inside the force network or on de-identified exports.
+
+name: samvedna-hrms-connector
+description: >
+  Signs in to a CAPF force HRMS web portal using vaulted credentials,
+  navigates to roster, leave-balance, and posting/transfer pages for each
+  unit in scope, and returns a clean JSON array to the SAMVEDNA ingest step.
+
+# Vault keys that the agent resolves at runtime
+vault:
+  - key: TINYFISH_VAULT_HRMS_USER
+    label: HRMS portal username
+  - key: TINYFISH_VAULT_HRMS_PASS
+    label: HRMS portal password
+
+# Variables (can be overridden at runtime with --var)
+variables:
+  TARGET_PORTAL_URL:
+    description: Base URL of the force HRMS portal
+    required: true
+  UNIT_CODES:
+    description: Comma-separated list of unit codes to fetch (e.g. "U01,U02,U03")
+    required: true
+    default: "U01"
+
+# Task sequence
+steps:
+  - name: navigate-to-login
+    action: navigate
+    url: "{{ TARGET_PORTAL_URL }}/login"
+
+  - name: fill-credentials
+    action: fill_form
+    fields:
+      username: "{{ vault.TINYFISH_VAULT_HRMS_USER }}"
+      password: "{{ vault.TINYFISH_VAULT_HRMS_PASS }}"
+    submit: true
+
+  - name: assert-logged-in
+    action: assert
+    selector: "[data-page='dashboard'], .dashboard-header"
+    timeout_s: 15
+    on_failure: abort_with_alert   # never write partial data
+
+  - name: fetch-roster-pages
+    action: foreach
+    items: "{{ UNIT_CODES.split(',') }}"
+    as: unit
+    steps:
+      - name: open-roster
+        action: navigate
+        url: "{{ TARGET_PORTAL_URL }}/units/{{ unit }}/roster"
+
+      - name: extract-roster
+        action: extract_table
+        selector: "table.roster-table, #roster-grid"
+        output_var: roster_rows
+
+      - name: open-leave
+        action: navigate
+        url: "{{ TARGET_PORTAL_URL }}/units/{{ unit }}/leave"
+
+      - name: extract-leave
+        action: extract_table
+        selector: "table.leave-table, #leave-grid"
+        output_var: leave_rows
+
+      - name: open-postings
+        action: navigate
+        url: "{{ TARGET_PORTAL_URL }}/units/{{ unit }}/postings"
+
+      - name: extract-postings
+        action: extract_table
+        selector: "table.posting-table, #posting-grid"
+        output_var: posting_rows
+
+      - name: transform-and-hash
+        action: transform
+        # SHA-256 of raw personnel ID is computed here — before any data leaves
+        script: |
+          import hashlib, json
+          records = []
+          for r in roster_rows:
+              records.append({
+                  "pid_hash": hashlib.sha256(str(r["personnel_id"]).encode()).hexdigest(),
+                  "duty_days_consecutive": int(r.get("consecutive_duty_days", 0)),
+                  "leave_balance_days": int(
+                      next((l["balance"] for l in leave_rows
+                            if l["pid"] == r["personnel_id"]), 0)
+                  ),
+                  "last_posting_change_date": next(
+                      (p["effective_date"] for p in posting_rows
+                       if p["pid"] == r["personnel_id"]), None
+                  ),
+                  "unit_code": "{{ unit }}"
+              })
+          output = records  # returned as this step's output
+
+  - name: validate-schema
+    action: validate_json
+    schema:
+      type: array
+      items:
+        type: object
+        required:
+          - pid_hash
+          - duty_days_consecutive
+          - leave_balance_days
+          - unit_code
+        properties:
+          pid_hash:
+            type: string
+            pattern: "^[a-f0-9]{64}$"
+          duty_days_consecutive:
+            type: integer
+            minimum: 0
+          leave_balance_days:
+            type: integer
+            minimum: 0
+          last_posting_change_date:
+            type: [string, "null"]
+          unit_code:
+            type: string
+    on_failure: abort_with_alert
+
+# Output returned to the Airflow DAG
+output:
+  format: json
+  value: "{{ transform-and-hash.output }}"
+
+# Failure behaviour
+on_failure:
+  action: alert
+  message: "SAMVEDNA HRMS Connector failed — skipping ingest for this run."
+  # Airflow will pick up the non-zero exit and alert

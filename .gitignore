@@ -1,0 +1,22 @@
+# Secrets and local env
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+credentials.json
+**/vault/
+**/.vault/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,55 @@
+﻿# TinyFish Fetch Monitor: Live Welfare Directory
+# Use-case 2-B from TINYFISH_INTEGRATION_PROMPT.md
+# Runs daily at 02:00 IST via dags/welfare_directory.py
+# Touches ONLY public URLs. No vaulted credentials needed.
+
+name: samvedna-welfare-directory
+description: >
+  Fetches welfare schemes, helplines, counselling centres, and leave/posting
+  circulars from public CAPF/MHA websites and keeps
+  data/welfare_directory.json current.
+
+schedule: "30 20 * * *"   # 02:00 IST = 20:30 UTC
+
+sources:
+  - name: crpf-welfare
+    url: https://www.crpf.gov.in/welfare.htm
+    type: fetch
+
+  - name: pib-capf
+    url: https://pib.gov.in/
+    type: search_then_fetch
+    query: "CAPF welfare counselling helpline"
+    max_results: 20
+
+  - name: mha-welfare
+    url: https://www.mha.gov.in/
+    type: search_then_fetch
+    query: "CAPF welfare circular helpline"
+    max_results: 20
+
+extract:
+  schema:
+    scheme_name:    { type: string }
+    type:           { type: string, enum: [helpline, centre, circular, scheme] }
+    contact:        { type: string, nullable: true }
+    effective_date: { type: string, format: date, nullable: true }
+    url:            { type: string, format: uri }
+
+deduplication:
+  key: [url, effective_date]
+
+output:
+  file: data/welfare_directory.json
+  changelog: data/welfare_directory_changelog.jsonl
+
+on_change:
+  - action: http_post
+    url: "{{ env.SAMVEDNA_API_BASE }}/api/welfare/directory/refresh"
+    headers:
+      Authorization: "Bearer {{ env.SAMVEDNA_SERVICE_TOKEN }}"
+
+on_failure:
+  action: log_warning
+  message: "Welfare directory fetch failed — keeping last-known data."
+  audit_endpoint: "{{ env.SAMVEDNA_API_BASE }}/api/audit/trust_test"

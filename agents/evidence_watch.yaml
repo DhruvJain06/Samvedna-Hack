@@ -1,0 +1,50 @@
+﻿# TinyFish Search+Fetch Monitor: Policy & Evidence Watch
+# Use-case 2-C from TINYFISH_INTEGRATION_PROMPT.md
+# Runs weekly (Monday 06:00 IST) via dags/evidence_watch.py
+# Touches ONLY public sources. No vaulted credentials needed.
+
+name: samvedna-evidence-watch
+description: >
+  Monitors PRS, PIB, MHA, PubMed, and arXiv for updates to CAPF suicide
+  statistics and burnout research. Alerts the SAMVEDNA team when published
+  numbers diverge from config/evidence_baseline.json by more than 5%.
+
+schedule: "30 0 * * 1"   # Monday 06:00 IST = 00:30 UTC
+
+queries:
+  - "CAPF suicide report MHA site:pib.gov.in OR site:mha.gov.in"
+  - "CAPF suicide 2023 OR 2024 OR 2025 report"
+  - "burnout prediction AUROC armed forces"
+  - "CAPF personnel suicide prevention circular"
+
+sources:
+  - type: web_search
+    engines: [google, bing]
+    max_results: 10
+
+  - type: pubmed
+    query: "burnout prediction armed forces AUROC"
+    max_results: 5
+
+fetch_full_text: true
+max_file_size_mb: 1
+cache_dir: data/evidence_cache
+
+baseline_file: config/evidence_baseline.json
+drift_threshold_pct: 5
+
+on_drift:
+  action: http_post
+  url: "{{ env.SAMVEDNA_API_BASE }}/api/alerts/evidence_drift"
+  headers:
+    Authorization: "Bearer {{ env.SAMVEDNA_SERVICE_TOKEN }}"
+  body:
+    field:      "{{ drift.field }}"
+    old_value:  "{{ drift.old_value }}"
+    new_value:  "{{ drift.new_value }}"
+    source_url: "{{ drift.source_url }}"
+    snippet:    "{{ drift.snippet }}"
+    run_id:     "{{ run_id }}"
+
+on_completion:
+  update_baseline_field: last_checked

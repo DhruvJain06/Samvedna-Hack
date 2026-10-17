@@ -1,0 +1,10 @@
+﻿{
+  "capf_suicide_per_year": 130,
+  "capf_suicide_5yr": 654,
+  "burnout_specificity": 0.84,
+  "target_auroc": 0.72,
+  "source": "PRS India Standing Committee on Home Affairs; MHA Demand for Grants; PubMed 41296876",
+  "source_date": "2024-01",
+  "notes": "capf_suicide_5yr covers 2018-2022. burnout_specificity from burnout-prediction meta-analysis. target_auroc is the model goal, not a published figure.",
+  "last_checked": null
+}

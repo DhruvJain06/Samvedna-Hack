@@ -1,0 +1,129 @@
+﻿# TinyFish Web Agent: Nightly RBAC Trust Tests
+# Use-case 2-D from TINYFISH_INTEGRATION_PROMPT.md
+# Runs nightly at 03:00 IST via dags/trust_tests.py
+# Credentials from TinyFish Vault. Uses ONLY demo/seeded accounts.
+
+name: samvedna-trust-tests
+description: >
+  Parametric agent that signs into the SAMVEDNA console as a given role
+  and attempts a specified forbidden action. Asserts that the action is
+  refused (HTTP 403 or UI "Access denied").
+
+vault:
+  - key: SAMVEDNA_DEMO_WO_PASS
+    label: Demo welfare officer password
+  - key: SAMVEDNA_DEMO_CO_PASS
+    label: Demo commanding officer password
+  - key: SAMVEDNA_DEMO_AU_PASS
+    label: Demo auditor password
+  - key: SAMVEDNA_DEMO_PERS_PASS
+    label: Demo personnel password
+
+variables:
+  ROLE:
+    description: "Role to test as: commanding_officer | welfare_officer | auditor | personnel"
+    required: true
+  ACTION:
+    description: "Forbidden action identifier (see actions map below)"
+    required: true
+  SAMVEDNA_CONSOLE_URL:
+    description: Base URL of the running SAMVEDNA console
+    required: true
+    default: "http://127.0.0.1:3100"
+
+# Account credentials map (resolved at runtime)
+credentials_map:
+  commanding_officer:
+    username: co01
+    password_vault_key: SAMVEDNA_DEMO_CO_PASS
+  welfare_officer:
+    username: wo12
+    password_vault_key: SAMVEDNA_DEMO_WO_PASS
+  auditor:
+    username: au03
+    password_vault_key: SAMVEDNA_DEMO_AU_PASS
+  personnel:
+    username: personnel
+    password_vault_key: SAMVEDNA_DEMO_PERS_PASS
+
+# Forbidden action definitions
+actions_map:
+  open_individual_case:
+    description: Open any individual case record or gate score
+    url_pattern: "{{ SAMVEDNA_CONSOLE_URL }}/officer?case=SYNTHETIC_001"
+    assert_blocked: true
+
+  view_small_unit:
+    description: View a unit with fewer than 5 people (k-anonymity boundary)
+    url_pattern: "{{ SAMVEDNA_CONSOLE_URL }}/unit?unit=SMALL_UNIT_001"
+    assert_blocked: true
+
+  change_verdict:
+    description: Attempt to change a case verdict
+    api_call:
+      method: POST
+      url: "{{ SAMVEDNA_CONSOLE_URL }}/api/officer/cases/SYNTHETIC_001/verdict"
+      body: { "verdict": "ESCALATE" }
+    assert_http_status: 403
+
+  download_raw_records:
+    description: Download non-aggregated raw records
+    url_pattern: "{{ SAMVEDNA_CONSOLE_URL }}/audit/export?raw=true"
+    assert_blocked: true
+
+  view_out_of_scope_unit:
+    description: View cases from a unit outside the welfare officer's assigned scope
+    url_pattern: "{{ SAMVEDNA_CONSOLE_URL }}/officer?unit=OUT_OF_SCOPE_UNIT"
+    assert_blocked: true
+
+  read_other_self_assessment:
+    description: Read another personnel member's self-assessment
+    url_pattern: "{{ SAMVEDNA_CONSOLE_URL }}/me?pid=OTHER_PERSONNEL_001"
+    assert_blocked: true
+
+steps:
+  - name: sign-in
+    action: navigate
+    url: "{{ SAMVEDNA_CONSOLE_URL }}/login"
+
+  - name: fill-login
+    action: fill_form
+    fields:
+      username: "{{ credentials_map[ROLE].username }}"
+      password: "{{ vault[credentials_map[ROLE].password_vault_key] }}"
+    submit: true
+    timeout_s: 15
+    on_failure:
+      type: abort
+      outcome: INFRASTRUCTURE_FAILURE
+      alert_url: "{{ env.SAMVEDNA_API_BASE }}/api/alerts/trust_failure"
+
+  - name: attempt-forbidden-action
+    action: "{{ actions_map[ACTION] }}"
+    timeout_s: 30
+    on_timeout:
+      outcome: INCONCLUSIVE
+
+  - name: assert-blocked
+    action: assert_blocked
+    on_success:
+      outcome: PASS
+    on_failure:
+      outcome: FAIL
+      alert_url: "{{ env.SAMVEDNA_API_BASE }}/api/alerts/trust_failure"
+
+  - name: log-to-audit
+    action: http_post
+    url: "{{ env.SAMVEDNA_API_BASE }}/api/audit/trust_test"
+    headers:
+      Authorization: "Bearer {{ env.SAMVEDNA_SERVICE_TOKEN }}"
+    body:
+      role:      "{{ ROLE }}"
+      action:    "{{ ACTION }}"
+      outcome:   "{{ outcome }}"
+      timestamp: "{{ now_iso }}"
+      run_id:    "{{ run_id }}"
+
+output:
+  outcome: "{{ outcome }}"
+  run_id:  "{{ run_id }}"
