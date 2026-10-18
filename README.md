@@ -64,4 +64,4 @@ person when the evidence earns it.
 
 ## Contact
 
-Team CodeZila — HackIIITD Esya 26 / SIH 2026
+Team CodeZila
