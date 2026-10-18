@@ -3,8 +3,9 @@
 Separate project for integrating TinyFish API into the SAMVEDNA mental-health
 welfare screening system (Team CodeZila / SIH 2026).
 
-> **This project does NOT modify the main SAMVEDNA codebase.**
-> It lives at D:\samvedna-tinyfish and is deployed alongside it.
+> The TinyFish sidecar lives here. SAMVEDNA FastAPI/UI patches for Tasks 2–5
+> are in `samvedna_overlay/` and should be copied onto
+> `D:\Samvedna SIH with Truevoice\samvedna\samvedna`.
 
 ## What is SAMVEDNA?
 
