@@ -334,10 +334,10 @@ export function SelfAssessment({
         </p>
         <div className="stack" style={{ gap: 8 }}>
           {[
-            { label: "Noticeably Better / More Rested (+2)", val: 2 },
-            { label: "Slightly Better (+1)", val: 1 },
-            { label: "About the Same (0)", val: 0 },
-            { label: "More Fatigued / Strained (-1)", val: -1 },
+            { label: "Noticeably Better / More Rested", val: 2 },
+            { label: "Slightly Better", val: 1 },
+            { label: "About the Same", val: 0 },
+            { label: "More Fatigued / Strained", val: -1 },
           ].map((opt) => (
             <button
               key={opt.val}
