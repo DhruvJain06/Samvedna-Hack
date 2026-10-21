@@ -1,17 +1,17 @@
-﻿/*
- * SAMVEDNA â€” interface system.
+/*
+ * SAMVEDNA — interface system.
  *
  * ============================================================================
- * BRAND TOKENS â€” the only block to edit to reskin the whole console.
+ * BRAND TOKENS — the only block to edit to reskin the whole console.
  * Every colour below is derived from these four. Drop in your own hex values
  * and the entire interface follows, including both themes.
  * ============================================================================
  */
 :root {
-  --brand-deep:   #1C2818;  /* structural authority â€” header, hero, footers   */
-  --brand-mid:    #2D4A22;  /* interactive structure â€” active nav, links      */
-  --brand-accent: #C27803;  /* the single action colour â€” buttons, emphasis   */
-  --brand-tint:   #F3F4EE;  /* the ground everything sits on                  */
+  --brand-deep:   #123262;  /* structural authority — header, hero, footers   */
+  --brand-mid:    #1F5199;  /* interactive structure — active nav, links      */
+  --brand-accent: #D4611A;  /* the single action colour — buttons, emphasis   */
+  --brand-tint:   #F4F2EC;  /* the ground everything sits on                  */
 }
 
 /*
@@ -38,7 +38,7 @@
  * **The accent still may not be amber.** A gate that does not clear is AMBER,
  * and an accent in that family would make "act on this" and "this did not
  * clear" the same colour on the one screen where the difference decides whether
- * a person gets named. Saffron-orange sits clearly apart from the amber below â€”
+ * a person gets named. Saffron-orange sits clearly apart from the amber below —
  * the same separation every previous palette here kept, so an operator who
  * learned one reads the next.
  */
@@ -49,20 +49,20 @@
  * from the accent and never borrowed for emphasis.
  *
  * A gate that does not clear is AMBER, never red. In this system a gate
- * refusing to clear is usually the correct answer â€” the machine declining to
- * accuse somebody â€” and painting that red would tell the reader the opposite of
+ * refusing to clear is usually the correct answer — the machine declining to
+ * accuse somebody — and painting that red would tell the reader the opposite of
  * what happened.
  */
 :root {
   --paper:     var(--brand-tint);
-  --paper-2:   #E5E8DD;
-  --card:      #FFFFFF;
-  --rule:      #CBD2BE;
-  --rule-soft: #DDE2D3;
+  --paper-2:   #E5E2D8;
+  --card:      #FFFDF8;
+  --rule:      #C7C3B6;
+  --rule-soft: #DCD8CE;
 
-  --ink:       #151C12;
-  --ink-2:     #3A4435;
-  --ink-3:     #63705C;
+  --ink:       #16202E;
+  --ink-2:     #445061;
+  --ink-3:     #767F8C;
   --on-deep:   #F2F5FA;
   --on-deep-2: #A9BCD8;
 
@@ -76,7 +76,7 @@
 
   /* Semantic colour, separate from the accent and never borrowed for emphasis.
    * `hold` stays amber: in this system a gate refusing to clear is usually the
-   * correct answer â€” the machine declining to accuse somebody â€” and painting
+   * correct answer — the machine declining to accuse somebody — and painting
    * that red would tell the reader the opposite of what happened. */
   /* India green, darkened to hold text. */
   --pass:      #14701C;
@@ -88,7 +88,7 @@
 
   /* System stacks, and this is a deployment decision rather than a taste one.
    * A webfont CDN link fails in an on-premise force data centre with no
-   * external route â€” silently, falling back to whatever is installed â€” and on a
+   * external route — silently, falling back to whatever is installed — and on a
    * network that does have one it announces to a third party that this data
    * centre runs this system, on every page load. The portability check fails
    * the build on the attempt. */
@@ -108,13 +108,13 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --paper:     #0B1220;
-    --paper-2:   #E5E8DD;
-    --card:      #FFFFFF;
-    --rule:      #CBD2BE;
-    --rule-soft: #DDE2D3;
-    --ink:       #151C12;
-    --ink-2:     #3A4435;
-    --ink-3:     #63705C;
+    --paper-2:   #141D2E;
+    --card:      #141D2E;
+    --rule:      #29364B;
+    --rule-soft: #1F2A3C;
+    --ink:       #E9EEF6;
+    --ink-2:     #AEBBCE;
+    --ink-3:     #7C8A9E;
     --on-deep:   #E9EEF6;
     --on-deep-2: #9FB4D2;
     --accent:      #F0813A;
@@ -134,9 +134,9 @@
   }
 }
 :root[data-theme="dark"] {
-  --paper: #0B1220; --paper-2:   #E5E8DD; --card:      #FFFFFF;
-  --rule:      #CBD2BE; --rule-soft: #DDE2D3;
-  --ink:       #151C12; --ink-2:     #3A4435; --ink-3:     #63705C;
+  --paper: #0B1220; --paper-2: #141D2E; --card: #141D2E;
+  --rule: #29364B; --rule-soft: #1F2A3C;
+  --ink: #E9EEF6; --ink-2: #AEBBCE; --ink-3: #7C8A9E;
   --on-deep: #E9EEF6; --on-deep-2: #9FB4D2;
   --accent: #F0813A; --accent-ink: #F8AB7C; --accent-soft: #33190B;
   --deep: #071022; --mid: #5D96E0; --mid-soft: #16233A;
@@ -701,7 +701,7 @@ table.heat th:first-child { text-align: left; }
  * table you can scan and a table you have to read. */
 .queue-row, .matrix, .ledger-row, .kpi-n { font-variant-numeric: tabular-nums; }
 
-/* A folded card. Used for text somebody reads once on enrolment â€” it must stay
+/* A folded card. Used for text somebody reads once on enrolment — it must stay
  * on the page for the record, without occupying the space above the actions. */
 .card.fold { padding: 0; }
 .card.fold > summary {
@@ -709,21 +709,21 @@ table.heat th:first-child { text-align: left; }
   list-style: none; display: flex; align-items: center; gap: 9px;
 }
 .card.fold > summary::-webkit-details-marker { display: none; }
-.card.fold > summary::before { content: "â–¸"; color: var(--accent); font-size: 0.85em; }
-.card.fold[open] > summary::before { content: "â–¾"; }
+.card.fold > summary::before { content: "▸"; color: var(--accent); font-size: 0.85em; }
+.card.fold[open] > summary::before { content: "▾"; }
 .card.fold[open] > summary { border-bottom: 1px solid var(--rule-soft); }
 .card.fold > *:not(summary) { padding: 0 18px 16px; }
 
 /*
  * ============================================================================
- * MAIN DASHBOARD  Â·  the front door
+ * MAIN DASHBOARD  ·  the front door
  * ============================================================================
  * This used to be an explanation of the system, which now lives at /about.
  * What sits here is a standing picture: what ran last night, whether the
  * machinery is sound, and one door per role.
  *
  * The military register is carried by typography and structure rather than by
- * ornament â€” wide-tracked mono labels the way field signage is set, chevrons
+ * ornament — wide-tracked mono labels the way field signage is set, chevrons
  * where a list needs a marker, and deep olive blocks for anything structural.
  * No camouflage, no stencil font, no insignia: this is a welfare system, and
  * dressing it up as materiel would misrepresent what it does.
@@ -792,7 +792,7 @@ table.heat th:first-child { text-align: left; }
   text-transform: uppercase; color: var(--ink-3); margin: 0;
 }
 .chev::before {
-  content: "Â»"; color: var(--accent); font-size: 1rem; letter-spacing: 0;
+  content: "»"; color: var(--accent); font-size: 1rem; letter-spacing: 0;
 }
 
 /* ---- metric row --------------------------------------------------------- */
@@ -874,10 +874,10 @@ table.heat th:first-child { text-align: left; }
 
 /*
  * ============================================================================
- * ORIENTATION  Â·  "what is this screen asking of me"
+ * ORIENTATION  ·  "what is this screen asking of me"
  * ============================================================================
  * Reviewers' finding: people took too long to work out how each console was
- * meant to be used. These pieces put the order of work on the screen itself â€”
+ * meant to be used. These pieces put the order of work on the screen itself —
  * a numbered strip under each header, numbered sections on the personnel page,
  * and controls that say their state in words as well as colour.
  */
@@ -926,7 +926,7 @@ table.heat th:first-child { text-align: left; }
 .consent-control { flex-shrink: 0; margin-inline-start: auto; }
 
 /* The switch. Its state is spelled out in the label as well as shown by the
- * knob â€” "allowed" / "not allowed" is the thing being agreed to, and a colour
+ * knob — "allowed" / "not allowed" is the thing being agreed to, and a colour
  * alone is not consent anybody can read back. */
 button.switch {
   display: inline-flex; align-items: center; gap: 10px;
