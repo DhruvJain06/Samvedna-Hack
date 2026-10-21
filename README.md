@@ -1,39 +1,80 @@
-# SAMVEDNA x TinyFish Integration
+# SAMVEDNA: Privacy-First Mental Health & Early Welfare System for Armed Forces
 
-Integration project for connecting the **TinyFish Autonomous Web & Search Agent Engine** with the **SAMVEDNA Mental-Health Welfare & Risk Detection System** (Team CodeZila / SIH 2026).
+> **SAMVEDNA** is an early-intervention, privacy-preserving welfare and mental health decision-support system designed specifically for India's Central Armed Police Forces (CAPF) and military personnel.
 
 ---
 
-## 💡 What is TinyFish's Role in Our Project? (In Layman's Terms)
+## 🎖️ What is SAMVEDNA? (In Layman's Terms)
 
-Think of SAMVEDNA as a doctor's clinic, and **TinyFish as our 24/7 digital field officer, auditor, and courier**. Instead of humans having to manually check websites, download HR records, or test security every day, TinyFish does it automatically:
+In the armed forces, soldiers face high-stress operational realities—long deployments, prolonged night duties, separation from family, and tough physical conditions. Due to military culture and fear of career stigma, jawans rarely ask for psychological help openly, often saying *"Sab theek hai, sir"* (Everything is fine) until extreme burnout or crisis occurs.
+
+**SAMVEDNA solves this quietly without stigmatizing anyone.**
+
+It acts as a smart, confidential protective shield that:
+1. **Never labels someone based on guesswork:** Instead of using opaque black-box AI, it uses a **4-Gate Evidence Engine** that requires verified, multi-domain proof before any welfare officer is alerted.
+2. **Listens to Physical Strain, Not Just Words:** Includes an ephemeral **Voice Biomarker Engine** that measures vocal cord strain (pitch tremor, speech cadence, monotone fatigue) during routine calls without ever recording or storing audio.
+3. **Adaptive Tactical Self-Assessments (ATAS):** Replaces rigid civilian questionnaires with duty-related questions (sentry recovery, weapon drill stamina, section friction) and dynamically rotates out questions that add zero value.
+4. **Protects Career & Confidentiality:** A Commanding Officer cannot view confidential medical or emotional notes. Only authorized medical/welfare officers receive anonymous early warnings to provide leave or support before a crisis develops.
+
+---
+
+## 🏛️ How the SAMVEDNA Core Engine Works
+
+```
+  [ Administrative HRMS Data ]      [ Tactical Self-Report ]      [ Ephemeral Voice Analysis ]
+  (Duty cycles, denied leave)       (Duty recovery, sentry sleep)   (Acoustic strain, no audio kept)
+               │                                │                                │
+               └────────────────────────────────┼────────────────────────────────┘
+                                                │
+                                                ▼
+                              ┌───────────────────────────────────┐
+                              │     4-Gate Verification Engine    │
+                              │ 1. Concordance (Words vs Tone)    │
+                              │ 2. Corroboration (≥2 Domains)     │
+                              │ 3. Persistence (Not just 1 bad day)│
+                              │ 4. Proportionality Gate           │
+                              └─────────────────┬─────────────────┘
+                                                │
+                                                ▼
+                                [ Timely Confidential Welfare Action ]
+                                (Leave rotation, peer buddy check,
+                                 or immediate medical officer visit)
+```
+
+---
+
+## 🐟 What Does TinyFish Do in SAMVEDNA? (In Layman's Terms)
+
+Think of SAMVEDNA as a clinical decision room, and **TinyFish as our 24/7 automated digital field officer, auditor, and courier**:
 
 1. **The Automatic HRMS Courier (Legacy HRMS Connector):**
-   * *Problem:* Many police and armed forces portals (like CRPF/CAPF HRMS) don't have modern APIs.
-   * *What TinyFish does:* TinyFish logs into the internal portal, fetches duty rosters, leave balances, and postings, and turns them into clean numbers for the SAMVEDNA risk engine—without storing credentials or exposing personal identities.
+   * *Problem:* CAPF internal personnel portals do not have modern public APIs.
+   * *What TinyFish does:* Logs into the legacy portal on schedule, extracts anonymized duty days, leave balances, and postings, and feeds them into SAMVEDNA's evidence engine without storing passwords or exposing identities.
 
 2. **The 24/7 Policy & Scheme Detective (Live Welfare Directory):**
-   * *Problem:* Government welfare schemes, helplines, ex-gratia policies, and child education benefits change frequently across different government orders.
-   * *What TinyFish does:* TinyFish automatically monitors official websites daily. The moment a new circular or helpline is released, it parses it and updates SAMVEDNA's directory so soldiers always see live, accurate support contacts.
+   * *Problem:* Government financial aids, helplines, educational grants for children, and ex-gratia policies change constantly across different circulars.
+   * *What TinyFish does:* Crawls official portals daily, parses new government circulars, and updates SAMVEDNA's welfare directory so personnel always see live, valid assistance contacts.
 
-3. **The Research Assistant (Evidence & Policy Watch):**
-   * *Problem:* Clinical risk weights need to match the latest ICMR, WHO, and Ministry of Home Affairs studies on operational stress.
-   * *What TinyFish does:* TinyFish executes automated periodic search queries across trusted sources and flags whenever a benchmark or operational stress guideline changes.
+3. **The Clinical Research Assistant (Evidence & Policy Watch):**
+   * *Problem:* Risk thresholds must reflect the latest medical and operational research (ICMR, WHO, Ministry of Home Affairs).
+   * *What TinyFish does:* Executes periodic automated searches across scientific databases and flags whenever clinical stress benchmarks update.
 
 4. **The Security Guard / Auditor (Nightly RBAC Trust Tests):**
-   * *Problem:* In military software, privacy is paramount: a Commanding Officer must never see private therapy logs, and a Welfare Officer must only see legitimate cases.
-   * *What TinyFish does:* Every night at 03:00 IST, TinyFish pretends to be 4 different roles (Commanding Officer, Welfare Officer, Auditor, Jawan) and attempts unauthorized actions. If a privacy rule or data gate fails, TinyFish immediately triggers a PagerDuty/webhook alert to the engineering team.
+   * *Problem:* Role-Based Access Control (RBAC) must never leak private medical disclosures to Commanding Officers.
+   * *What TinyFish does:* Every night at 03:00 IST, TinyFish simulates 4 distinct user roles (Commanding Officer, Welfare Officer, Auditor, Jawan) and attempts unauthorized access. If any privacy gate fails, an immediate alert is dispatched.
 
 ---
 
-## 🎯 Summary of Key Capabilities
+## 🎯 Summary of System Capabilities
 
-| Component | TinyFish Feature | Schedule | Purpose |
-|---|---|---|---|
-| **Legacy HRMS Ingestion** | Autonomous Web Agent + Vault | Nightly 01:00 IST | Extracts anonymized duty and leave records from force portals. |
-| **Live Welfare Directory** | Content Fetch Monitor | Daily 02:00 IST | Keeps CAPF financial schemes, helplines, and aid contacts updated. |
-| **Evidence & Policy Watch** | Search Query + Content Fetch | Weekly Mon 06:00 IST | Monitors psychiatric and operational stress research updates. |
-| **Nightly RBAC Trust Audit** | Web Agent Automated Audit | Nightly 03:00 IST | Verifies access control and privacy invariants across all 4 user roles. |
+| Domain | Mechanism | Purpose |
+|---|---|---|
+| **Early Warning** | 4-Gate Cross-Verification Engine | Prevents false alarms by demanding multi-source corroboration before naming. |
+| **Tactical Assessment** | Adaptive Self-Assessment (ATAS) | Dynamic question rotation; measures sentry recovery and operational stress. |
+| **Voice Analytics** | Ephemeral Vocal Cord Biomarkers | Detects strain & exhaustion in real-time; **zero audio is ever stored**. |
+| **HRMS Ingestion** | TinyFish Web Agent + Vault | Nightly automated ingestion of duty records from legacy force portals. |
+| **Welfare Directory** | TinyFish Fetch Monitor | Daily live tracking of CAPF circulars, grants, and support helplines. |
+| **Security Audit** | TinyFish Nightly Trust Runner | Automated penetration tests verifying zero unauthorized data leakage. |
 
 ---
 
@@ -45,8 +86,7 @@ python -m venv .venv
 .\.venv\Scripts\pip install -r requirements.txt
 ```
 
-### 2. TinyFish CLI Verification
-TinyFish CLI 0.51+ is supported:
+### 2. Verify TinyFish CLI
 ```powershell
 tinyfish auth status
 tinyfish search query "CRPF welfare circular" --pretty
@@ -76,18 +116,18 @@ samvedna-tinyfish/
 │   └── hrms_connector.py   # Portal automation connector
 ├── tests/              # 40 unit and integration tests
 ├── samvedna_overlay/   # Application-level patches and API bridges
-└── README.md           # This documentation
+└── README.md           # Project documentation
 ```
 
 ---
 
 ## 🛡️ Privacy & Security Invariants
 
-* **No Plaintext Passwords:** Passwords and tokens are stored in the secure **TinyFish Vault**; never in `.env` files or git.
-* **No Direct Soldier Identifiers:** All personal IDs are hashed (`pid_hash`) before leaving the HRMS connector.
-* **Zero Audio Retention:** SAMVEDNA voice sessions analyze acoustic frequencies strictly in ephemeral memory and immediately discard audio frames.
+* **No Plaintext Passwords:** Credentials reside exclusively in the secure **TinyFish Vault**; never committed to git or stored in `.env`.
+* **Salted Identity Hashes:** All personnel IDs are hashed (`pid_hash`) before processing; no plain personal identifiers ever leave the connector.
+* **Ephemeral Audio Analysis:** Voice analysis operates entirely in temporary volatile memory; raw audio files and conversation transcripts are permanently discarded immediately after feature extraction.
 
 ---
 
 ## 👥 Authors
-Team CodeZila — Smart India Hackathon (SIH 2026) / HackIIITD Esya 26
+Team CodeZila
