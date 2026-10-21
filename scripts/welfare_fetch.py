@@ -1,4 +1,4 @@
-﻿"""
+"""
 scripts/welfare_fetch.py
 Orchestrates the TinyFish welfare directory fetch for SAMVEDNA.
 
@@ -81,7 +81,7 @@ def parse_welfare_items(html: str, source_url: str) -> list[dict]:
 
 def load_existing() -> list[dict]:
     if DIRECTORY_FILE.exists():
-        with open(DIRECTORY_FILE, encoding="utf-8") as f:
+        with open(DIRECTORY_FILE, encoding="utf-8-sig") as f:
             return json.load(f)
     return []
 

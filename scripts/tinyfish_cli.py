@@ -41,7 +41,8 @@ def tinyfish_argv() -> list[str]:
     resolved = shutil.which("tinyfish")
     if resolved:
         return [resolved]
-    return ["npx", "-y", NPX_PACKAGE]
+    npx_bin = shutil.which("npx") or "npx"
+    return [npx_bin, "-y", NPX_PACKAGE]
 
 
 def search_query_cmd(query: str) -> list[str]:
@@ -76,7 +77,14 @@ def agent_run_cmd(
 
 def run_tinyfish(cmd: list[str], *, timeout: int) -> subprocess.CompletedProcess[str]:
     log.info("TinyFish: %s", " ".join(cmd[:8]) + (" …" if len(cmd) > 8 else ""))
-    return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+    return subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        timeout=timeout,
+    )
 
 
 def parse_cli_json(stdout: str) -> Any:

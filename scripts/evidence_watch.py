@@ -1,4 +1,4 @@
-﻿"""
+"""
 scripts/evidence_watch.py
 Monitors policy/research sources for changes to SAMVEDNA baseline numbers.
 
@@ -149,7 +149,7 @@ def alert_drift(drift: dict, run_id: str) -> None:
 
 def load_baseline() -> dict:
     if BASELINE_FILE.exists():
-        with open(BASELINE_FILE, encoding="utf-8") as f:
+        with open(BASELINE_FILE, encoding="utf-8-sig") as f:
             return json.load(f)
     return {}
 
