@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useState } from "react";
 import { Guard } from "@/components/Shell";
@@ -16,7 +16,7 @@ import type { UnitView } from "@/lib/types";
  * personnel file, and word gets round that reporting strain is career-limiting,
  * and then the honest answers stop arriving and the system is worth nothing.
  *
- * So this surface answers a different question â€” is my unit under strain, and
+ * So this surface answers a different question — is my unit under strain, and
  * is it something I control? A commander can act on watch-and-rest rotation, on
  * leave backlog, on how long a sub-unit has been running unbroken. None of
  * those need a name.
@@ -59,7 +59,7 @@ function UnitConsole() {
   useEffect(load, [load]);
 
   if (error) return <div className="banner stop" style={{ marginTop: 30 }}>{error}</div>;
-  if (!view || !heat) return <p className="faint" style={{ paddingTop: 34 }}>Loading unit viewâ€¦</p>;
+  if (!view || !heat) return <p className="faint" style={{ paddingTop: 34 }}>Loading unit view…</p>;
 
   const worst = [...heat.cells]
     .filter((c) => !c.suppressed)
@@ -73,7 +73,7 @@ function UnitConsole() {
       <div className="console-head">
         <div>
           <p className="eyebrow">
-            {service.unit} {unitId} Â· aggregate view Â· {view.as_of}
+            {service.unit} {unitId} · aggregate view · {view.as_of}
           </p>
           <h1 style={{ fontSize: "1.85rem" }}>Unit strain</h1>
         </div>
@@ -88,7 +88,7 @@ function UnitConsole() {
             <span className="kpi-k">suppressed</span>
           </div>
           <div className="kpi">
-            <span className="kpi-n num">kâ‰¥{heat.k}</span>
+            <span className="kpi-n num">k≥{heat.k}</span>
             <span className="kpi-k">min group</span>
           </div>
           <div className="kpi">
@@ -101,8 +101,8 @@ function UnitConsole() {
       <PageGuide
         id="unit"
         steps={[
-          <><strong>Read the headline</strong> â€” the one sub-unit and domain most under strain, and the suggested next step.</>,
-          <><strong>Scan the grid:</strong> darker cells are higher strain. Hatched cells are <em>suppressed</em> â€” too few people to show safely.</>,
+          <><strong>Read the headline</strong> — the one sub-unit and domain most under strain, and the suggested next step.</>,
+          <><strong>Scan the grid:</strong> darker cells are higher strain. Hatched cells are <em>suppressed</em> — too few people to show safely.</>,
           <><strong>Act on rostering, not people.</strong> Leave, rest and rotation are yours to change; no names are ever shown here.</>,
         ]}
       />
@@ -113,7 +113,7 @@ function UnitConsole() {
         <strong>
           {attention.length === 0
             ? "Nothing raised above baseline."
-            : `${worst?.sub_unit} â€” ${worst?.domain.replace(/_/g, " ")} is ${worst?.band}.`}
+            : `${worst?.sub_unit} — ${worst?.domain.replace(/_/g, " ")} is ${worst?.band}.`}
         </strong>
         <span>{view.next_step}</span>
       </div>
@@ -123,7 +123,7 @@ function UnitConsole() {
         <div className="card">
           <div className="row">
             <h2 style={{ fontSize: "1.05rem", margin: 0 }}>
-              {service.sub_unit} Ã— domain
+              {service.sub_unit} × domain
             </h2>
             <span className="spacer" />
             <button className="ghost" onClick={() => { setRefreshes((r) => r + 1); load(); }}>
@@ -156,10 +156,10 @@ function UnitConsole() {
                             title={
                               cell.suppressed
                                 ? cell.reason
-                                : `${cell.band} Â· n=${cell.n} Â· ${cell.value?.toFixed(2)}`
+                                : `${cell.band} · n=${cell.n} · ${cell.value?.toFixed(2)}`
                             }
                           >
-                            {cell.suppressed ? "â€”" : cell.band.slice(0, 4)}
+                            {cell.suppressed ? "—" : cell.band.slice(0, 4)}
                           </span>
                         </td>
                       );
@@ -172,11 +172,11 @@ function UnitConsole() {
           <div style={{ marginTop: 14, display: "flex", flexWrap: "wrap", alignItems: "center", gap: "16px", fontSize: "0.85rem" }}>
             {BAND_ORDER.map((b) => (
               <span key={b}>
-                <span className={`heat-cell band-${b}`} style={{ width: 18, height: 18, borderRadius: 3, display: "inline-block", verticalAlign: "middle", marginRight: 6 }} /> {b}
+                <span className={`heat-cell band-${b}`} style={{ width: 22 }} /> {b}
               </span>
             ))}
             <span>
-              <span className="heat-cell band-suppressed" style={{ width: 18, height: 18, borderRadius: 3, display: "inline-block", verticalAlign: "middle", marginRight: 6 }} /> too few to show
+              <span className="heat-cell band-suppressed" style={{ width: 22 }} /> too few to show
             </span>
           </div>
         </div>
@@ -193,7 +193,7 @@ function UnitConsole() {
               <ul className="tight-list muted">
                 {attention.slice(0, 6).map((c) => (
                   <li key={`${c.sub_unit}-${c.domain}`}>
-                    <strong>{c.sub_unit}</strong> Â· {c.domain.replace(/_/g, " ")} â€”{" "}
+                    <strong>{c.sub_unit}</strong> · {c.domain.replace(/_/g, " ")} —{" "}
                     <span className={`pill ${c.band === "critical" ? "stop" : "hold"}`}>
                       {c.band}
                     </span>
@@ -207,13 +207,13 @@ function UnitConsole() {
             <p className="eyebrow">Not shown here</p>
             <ul className="tight-list muted">
               <li>Names. No individual is identifiable from this view.</li>
-              <li>Self-report, biometric and voice domains â€” withheld from
+              <li>Self-report, biometric and voice domains — withheld from
                   command entirely, at any group size.</li>
               <li>Cells under k={heat.k} people, suppressed rather than rounded.</li>
             </ul>
             {refreshes > 0 && (
               <p className="faint" style={{ marginTop: 8 }}>
-                Refreshed {refreshes}Ã—. The same figures came back â€” a repeated
+                Refreshed {refreshes}×. The same figures came back — a repeated
                 view is served from cache so it cannot be averaged down to one
                 person.
               </p>
@@ -224,7 +224,7 @@ function UnitConsole() {
             <p className="eyebrow">Levers you hold</p>
             <ul className="tight-list muted">
               <li>Watch-and-rest rotation for the raised sub-unit</li>
-              <li>Leave backlog â€” oldest pending request first</li>
+              <li>Leave backlog — oldest pending request first</li>
               <li>Consecutive-days run: relief before day 14</li>
             </ul>
           </div>
