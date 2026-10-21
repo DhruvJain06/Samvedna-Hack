@@ -8,10 +8,10 @@
  * ============================================================================
  */
 :root {
-  --brand-deep:   #0A192F;  /* structural authority â€” header, hero, footers   */
-  --brand-mid:    #0369A1;  /* interactive structure â€” active nav, links      */
-  --brand-accent: #E05600;  /* the single action colour â€” buttons, emphasis   */
-  --brand-tint:   #F9FBFD;  /* the ground everything sits on                  */
+  --brand-deep:   #1C2818;  /* structural authority â€” header, hero, footers   */
+  --brand-mid:    #2D4A22;  /* interactive structure â€” active nav, links      */
+  --brand-accent: #C27803;  /* the single action colour â€” buttons, emphasis   */
+  --brand-tint:   #F3F4EE;  /* the ground everything sits on                  */
 }
 
 /*
@@ -55,14 +55,14 @@
  */
 :root {
   --paper:     var(--brand-tint);
-  --paper-2:   #EEF2F6;
+  --paper-2:   #E5E8DD;
   --card:      #FFFFFF;
-  --rule:      #CBD5E1;
-  --rule-soft: #E2E8F0;
+  --rule:      #CBD2BE;
+  --rule-soft: #DDE2D3;
 
-  --ink:       #0F172A;
-  --ink-2:     #334155;
-  --ink-3:     #64748B;
+  --ink:       #151C12;
+  --ink-2:     #3A4435;
+  --ink-3:     #63705C;
   --on-deep:   #F2F5FA;
   --on-deep-2: #A9BCD8;
 
@@ -108,13 +108,13 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --paper:     #0B1220;
-    --paper-2:   #141D2E;
-    --card:      #141D2E;
-    --rule:      #29364B;
-    --rule-soft: #1F2A3C;
-    --ink:       #E9EEF6;
-    --ink-2:     #AEBBCE;
-    --ink-3:     #7C8A9E;
+    --paper-2:   #E5E8DD;
+    --card:      #FFFFFF;
+    --rule:      #CBD2BE;
+    --rule-soft: #DDE2D3;
+    --ink:       #151C12;
+    --ink-2:     #3A4435;
+    --ink-3:     #63705C;
     --on-deep:   #E9EEF6;
     --on-deep-2: #9FB4D2;
     --accent:      #F0813A;
@@ -134,9 +134,9 @@
   }
 }
 :root[data-theme="dark"] {
-  --paper: #0B1220; --paper-2: #141D2E; --card: #141D2E;
-  --rule: #29364B; --rule-soft: #1F2A3C;
-  --ink: #E9EEF6; --ink-2: #AEBBCE; --ink-3: #7C8A9E;
+  --paper: #0B1220; --paper-2:   #E5E8DD; --card:      #FFFFFF;
+  --rule:      #CBD2BE; --rule-soft: #DDE2D3;
+  --ink:       #151C12; --ink-2:     #3A4435; --ink-3:     #63705C;
   --on-deep: #E9EEF6; --on-deep-2: #9FB4D2;
   --accent: #F0813A; --accent-ink: #F8AB7C; --accent-soft: #33190B;
   --deep: #071022; --mid: #5D96E0; --mid-soft: #16233A;
