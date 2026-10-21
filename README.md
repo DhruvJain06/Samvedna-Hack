@@ -90,4 +90,4 @@ samvedna-tinyfish/
 ---
 
 ## 👥 Authors
-**Team CodeZila** — Smart India Hackathon (SIH 2026) / HackIIITD Esya 26
+Team CodeZila — Smart India Hackathon (SIH 2026) / HackIIITD Esya 26
