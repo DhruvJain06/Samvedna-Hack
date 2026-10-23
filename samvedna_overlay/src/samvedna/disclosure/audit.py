@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import threading
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from typing import Literal
@@ -98,6 +99,13 @@ class Ledger:
     _entries: list[Entry] = field(default_factory=list)
     # Test/ops hook: simulate a storage failure so the abort path is exercisable.
     fail_next_write: bool = False
+    # Serialises concurrent appends so that seq = len(_entries) is always
+    # read and acted on atomically.  Without this, two FastAPI request handlers
+    # running concurrently can both read the same length, assign the same seq,
+    # and produce the "entry N: sequence is N-1" chain break shown on the
+    # integrity card.  The lock is non-reentrant because no code path calls
+    # append() from within an existing append().
+    _lock: threading.Lock = field(default_factory=threading.Lock, repr=False, compare=False)
 
     @property
     def head(self) -> str:
@@ -129,26 +137,30 @@ class Ledger:
         detail: dict | None = None,
         at: datetime | None = None,
     ) -> Entry:
-        if self.fail_next_write:
-            self.fail_next_write = False
-            raise LedgerWriteFailed(f"{action}: storage rejected the append")
+        # The lock is acquired first so that fail_next_write, the seq
+        # assignment, and the list append are one atomic operation.  Raising
+        # inside the `with` block still releases the lock correctly.
+        with self._lock:
+            if self.fail_next_write:
+                self.fail_next_write = False
+                raise LedgerWriteFailed(f"{action}: storage rejected the append")
 
-        entry = Entry(
-            seq=len(self._entries),
-            at=at or datetime.now(UTC),
-            actor=actor,
-            action=action,
-            subject_pid=subject_pid,
-            unit_id=unit_id,
-            purpose=purpose,
-            detail=dict(detail or {}),
-            prev_hash=self.head,
-        )
-        sealed = Entry(
-            **{**entry.to_dict(), "at": entry.at, "entry_hash": entry.compute_hash()}
-        )
-        self._entries.append(sealed)
-        return sealed
+            entry = Entry(
+                seq=len(self._entries),
+                at=at or datetime.now(UTC),
+                actor=actor,
+                action=action,
+                subject_pid=subject_pid,
+                unit_id=unit_id,
+                purpose=purpose,
+                detail=dict(detail or {}),
+                prev_hash=self.head,
+            )
+            sealed = Entry(
+                **{**entry.to_dict(), "at": entry.at, "entry_hash": entry.compute_hash()}
+            )
+            self._entries.append(sealed)
+            return sealed
 
     # Read paths. There is deliberately no update and no delete.
     def entries(self) -> tuple[Entry, ...]:
