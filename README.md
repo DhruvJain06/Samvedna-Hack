@@ -1,12 +1,12 @@
-﻿# SAMVEDNA: Privacy-First Mental Health & Early Welfare System for Armed Forces
+# SAMVEDNA: Privacy-First Mental Health & Early Welfare System for Armed Forces
 
 > **SAMVEDNA** is an early-intervention, privacy-preserving welfare and mental health decision-support system designed specifically for India's Central Armed Police Forces (CAPF) and military personnel.
 
 ---
 
-## ðŸŽ–ï¸ What is SAMVEDNA? (In Layman's Terms)
+## 🎖️ What is SAMVEDNA? (In Layman's Terms)
 
-In the armed forces, soldiers face high-stress operational realitiesâ€”long deployments, prolonged night duties, separation from family, and tough physical conditions. Due to military culture and fear of career stigma, jawans rarely ask for psychological help openly, often saying *"Sab theek hai, sir"* (Everything is fine) until extreme burnout or crisis occurs.
+In the armed forces, soldiers face high-stress operational realities—long deployments, prolonged night duties, separation from family, and tough physical conditions. Due to military culture and fear of career stigma, jawans rarely ask for psychological help openly, often saying *"Sab theek hai, sir"* (Everything is fine) until extreme burnout or crisis occurs.
 
 **SAMVEDNA solves this quietly without stigmatizing anyone.**
 
@@ -18,24 +18,24 @@ It acts as a smart, confidential protective shield that:
 
 ---
 
-## ðŸ›ï¸ How the SAMVEDNA Core Engine Works
+## 🏛️ How the SAMVEDNA Core Engine Works
 
 ```
   [ Administrative HRMS Data ]      [ Tactical Self-Report ]      [ Ephemeral Voice Analysis ]
   (Duty cycles, denied leave)       (Duty recovery, sentry sleep)   (Acoustic strain, no audio kept)
-               â”‚                                â”‚                                â”‚
-               â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-                                                â”‚
-                                                â–¼
-                              â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-                              â”‚     4-Gate Verification Engine    â”‚
-                              â”‚ 1. Concordance (Words vs Tone)    â”‚
-                              â”‚ 2. Corroboration (â‰¥2 Domains)     â”‚
-                              â”‚ 3. Persistence (Not just 1 bad day)â”‚
-                              â”‚ 4. Proportionality Gate           â”‚
-                              â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-                                                â”‚
-                                                â–¼
+               │                                │                                │
+               └────────────────────────────────┼────────────────────────────────┘
+                                                │
+                                                ▼
+                              ┌───────────────────────────────────┐
+                              │     4-Gate Verification Engine    │
+                              │ 1. Concordance (Words vs Tone)    │
+                              │ 2. Corroboration (≥2 Domains)     │
+                              │ 3. Persistence (Not just 1 bad day)│
+                              │ 4. Proportionality Gate           │
+                              └─────────────────┬─────────────────┘
+                                                │
+                                                ▼
                                 [ Timely Confidential Welfare Action ]
                                 (Leave rotation, peer buddy check,
                                  or immediate medical officer visit)
@@ -43,7 +43,7 @@ It acts as a smart, confidential protective shield that:
 
 ---
 
-## ðŸŸ What Does TinyFish Do in SAMVEDNA? (In Layman's Terms)
+## 🐟 What Does TinyFish Do in SAMVEDNA? (In Layman's Terms)
 
 Think of SAMVEDNA as a clinical decision room, and **TinyFish as our 24/7 automated digital field officer, auditor, and courier**:
 
@@ -65,7 +65,7 @@ Think of SAMVEDNA as a clinical decision room, and **TinyFish as our 24/7 automa
 
 ---
 
-## ðŸŽ¯ Summary of System Capabilities
+## 🎯 Summary of System Capabilities
 
 | Domain | Mechanism | Purpose |
 |---|---|---|
@@ -78,7 +78,7 @@ Think of SAMVEDNA as a clinical decision room, and **TinyFish as our 24/7 automa
 
 ---
 
-## ðŸš€ Quick Start & Setup
+## 🚀 Quick Start & Setup
 
 ### 1. Environment & Dependencies
 ```powershell
@@ -100,28 +100,28 @@ tinyfish search query "CRPF welfare circular" --pretty
 
 ---
 
-## ðŸ“‚ Project Architecture
+## 📂 Project Architecture
 
 ```
 samvedna-tinyfish/
-â”œâ”€â”€ agents/             # TinyFish Web Agent & Monitor configuration specs (.yaml)
-â”œâ”€â”€ config/             # Baseline clinical evidence thresholds & parameters
-â”œâ”€â”€ dags/               # Airflow automation DAGs for scheduled execution
-â”œâ”€â”€ data/               # Live welfare directory cache & extracted indices
-â”œâ”€â”€ reports/            # Automated nightly trust and RBAC audit reports
-â”œâ”€â”€ scripts/            # CLI wrappers, orchestration, and sync scripts
-â”‚   â”œâ”€â”€ tinyfish_cli.py     # Unified CLI bridge for Search, Fetch & Agent runs
-â”‚   â”œâ”€â”€ welfare_fetch.py    # Automatic circular & welfare directory crawler
-â”‚   â”œâ”€â”€ evidence_watch.py   # Clinical literature & policy monitoring script
-â”‚   â””â”€â”€ hrms_connector.py   # Portal automation connector
-â”œâ”€â”€ tests/              # 40 unit and integration tests
-â”œâ”€â”€ samvedna_overlay/   # Application-level patches and API bridges
-â””â”€â”€ README.md           # Project documentation
+├── agents/             # TinyFish Web Agent & Monitor configuration specs (.yaml)
+├── config/             # Baseline clinical evidence thresholds & parameters
+├── dags/               # Airflow automation DAGs for scheduled execution
+├── data/               # Live welfare directory cache & extracted indices
+├── reports/            # Automated nightly trust and RBAC audit reports
+├── scripts/            # CLI wrappers, orchestration, and sync scripts
+│   ├── tinyfish_cli.py     # Unified CLI bridge for Search, Fetch & Agent runs
+│   ├── welfare_fetch.py    # Automatic circular & welfare directory crawler
+│   ├── evidence_watch.py   # Clinical literature & policy monitoring script
+│   └── hrms_connector.py   # Portal automation connector
+├── tests/              # 40 unit and integration tests
+├── samvedna_overlay/   # Application-level patches and API bridges
+└── README.md           # Project documentation
 ```
 
 ---
 
-## ðŸ›¡ï¸ Privacy & Security Invariants
+## 🛡️ Privacy & Security Invariants
 
 * **No Plaintext Passwords:** Credentials reside exclusively in the secure **TinyFish Vault**; never committed to git or stored in `.env`.
 * **Salted Identity Hashes:** All personnel IDs are hashed (`pid_hash`) before processing; no plain personal identifiers ever leave the connector.
@@ -129,5 +129,5 @@ samvedna-tinyfish/
 
 ---
 
-## ðŸ‘¥ Authors
+## 👥 Authors
 Team CodeZila
